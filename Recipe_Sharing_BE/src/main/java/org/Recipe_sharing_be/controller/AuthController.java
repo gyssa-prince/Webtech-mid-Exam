@@ -1,37 +1,40 @@
 package org.Recipe_sharing_be.controller;
 
-import org.Recipe_sharing_be.dto.AuthRequest;
-import org.Recipe_sharing_be.dto.AuthResponse;
-import org.Recipe_sharing_be.model.Role;
 import org.Recipe_sharing_be.model.User;
-import org.Recipe_sharing_be.service.AuthService;
+import org.Recipe_sharing_be.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    private AuthService authService;
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder; // Inject PasswordEncoder
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User user) {
-        // Assign default roles; you can enhance this to allow role assignment via the request body
-        Set<Role> roles = Set.of(new Role("USER")); // Assuming you have a ROLE_USER
-        user.setRoles(roles); // Assign roles to the user
-        authService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    public ResponseEntity<?> signup(@RequestBody User user) {
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signin(@RequestBody AuthRequest authRequest) {
-        AuthResponse response = authService.authenticateUser(authRequest.getUsername(), authRequest.getPassword());
-        // Return the response with appropriate HTTP status
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> signin(@RequestBody Map<String, String> credentials) {
+        var user = userService.findByUsername(credentials.get("username"));
+        if (user.isPresent() && passwordEncoder.matches(credentials.get("password"), user.get().getPassword())) {
+            return ResponseEntity.ok("Successfully logged in");
+        }
+        return ResponseEntity.status(401).body("Invalid credentials");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok("Successfully logged out");
     }
 }

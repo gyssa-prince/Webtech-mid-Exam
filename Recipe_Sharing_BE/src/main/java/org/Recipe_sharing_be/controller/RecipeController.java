@@ -1,49 +1,49 @@
 package org.Recipe_sharing_be.controller;
 
-import org.Recipe_sharing_be.model.Recipe;
-import org.Recipe_sharing_be.service.RecipeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.Recipe_sharing_be.model.Recipe;
+import org.Recipe_sharing_be.service.RecipeService;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/recipes")
+@RequestMapping("/api/recipes")
 public class RecipeController {
 
-    @Autowired
-    private RecipeService recipeService;
+    private final RecipeService recipeService;
 
-    // Endpoint for adding a new recipe
-    @PostMapping
-    public ResponseEntity<Recipe> addRecipe(@RequestBody Recipe recipe) {
-        Recipe createdRecipe = recipeService.addRecipe(recipe);
-        return ResponseEntity.ok(createdRecipe);
+    @Autowired
+    public RecipeController(RecipeService recipeService) {
+        this.recipeService = recipeService;
     }
 
-    // Endpoint for retrieving all recipes
     @GetMapping
     public ResponseEntity<List<Recipe>> getAllRecipes() {
         List<Recipe> recipes = recipeService.getAllRecipes();
         return ResponseEntity.ok(recipes);
     }
 
-    // Endpoint for retrieving a recipe by ID
     @GetMapping("/{id}")
     public ResponseEntity<Recipe> getRecipeById(@PathVariable Long id) {
         Recipe recipe = recipeService.getRecipeById(id);
         return ResponseEntity.ok(recipe);
     }
 
-    // Endpoint for updating an existing recipe
-    @PutMapping("/{id}")
-    public ResponseEntity<Recipe> updateRecipe(@PathVariable Long id, @RequestBody Recipe recipeDetails) {
-        Recipe updatedRecipe = recipeService.updateRecipe(id, recipeDetails);
-        return ResponseEntity.ok(updatedRecipe);
+    @PostMapping
+    public ResponseEntity<Recipe> createRecipe(@RequestBody Recipe recipe) {
+        Recipe savedRecipe = recipeService.createRecipe(recipe);
+        return ResponseEntity.ok(savedRecipe);
     }
 
-    // Endpoint for deleting a recipe by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<Recipe> updateRecipe(@PathVariable Long id, @RequestBody Recipe updatedRecipe) {
+        Recipe savedRecipe = recipeService.updateRecipe(id, updatedRecipe);
+        return ResponseEntity.ok(savedRecipe);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(@PathVariable Long id) {
         recipeService.deleteRecipe(id);

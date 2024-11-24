@@ -1,46 +1,43 @@
 package org.Recipe_sharing_be.service;
 
 import org.Recipe_sharing_be.model.Recipe;
-import org.Recipe_sharing_be.repository.RecipeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RecipeService {
-
-    @Autowired
-    private RecipeRepository recipeRepository;
-
-    public Recipe addRecipe(Recipe recipe) {
-        return recipeRepository.save(recipe);
-    }
+    private final List<Recipe> recipes = new ArrayList<>();
 
     public List<Recipe> getAllRecipes() {
-        return recipeRepository.findAll();
+        return recipes; // Returning all recipes
     }
 
     public Recipe getRecipeById(Long id) {
-        return recipeRepository.findById(id).orElse(null);
+        return recipes.stream()
+                .filter(recipe -> recipe.getId().equals(id))
+                .findFirst()
+                .orElse(null); // Returning a recipe by ID
     }
 
-    public Recipe updateRecipe(Long id, Recipe recipeDetails) {
-        Optional<Recipe> recipeOptional = recipeRepository.findById(id);
-        if (recipeOptional.isPresent()) {
-            Recipe recipe = recipeOptional.get();
-            recipe.setName(recipeDetails.getName());
-            recipe.setDescription(recipeDetails.getDescription());
-            recipe.setCategory(recipeDetails.getCategory());
-            recipe.setInstructions(recipeDetails.getInstructions());
-            recipe.setIngredients(recipeDetails.getIngredients());
-            return recipeRepository.save(recipe);
+    public Recipe createRecipe(Recipe recipe) {
+        recipes.add(recipe); // Adding a new recipe to the list
+        return recipe;
+    }
+
+    public Recipe updateRecipe(Long id, Recipe updatedRecipe) {
+        Recipe recipe = getRecipeById(id);
+        if (recipe != null) {
+            recipe.setTitle(updatedRecipe.getTitle());
+            recipe.setDescription(updatedRecipe.getDescription());
+            recipe.setPicture(updatedRecipe.getPicture());
+            recipe.setSharedBy(updatedRecipe.getSharedBy());
         }
-        return null;
+        return recipe; // Updating and returning the updated recipe
     }
 
     public void deleteRecipe(Long id) {
-        recipeRepository.deleteById(id);
+        recipes.removeIf(recipe -> recipe.getId().equals(id)); // Deleting a recipe by ID
     }
 }

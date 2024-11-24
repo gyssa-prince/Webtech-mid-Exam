@@ -1,35 +1,21 @@
 package org.Recipe_sharing_be.model;
 
-import javax.persistence.*;
-import java.util.Set;
-
-@Entity
+import jakarta.persistence.*;
 @Table(name = "users")
+@Entity
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles; // Add roles field
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private UserProfile userProfile; // Assuming a User has one UserProfile
-
-    // Constructors
-    public User() {}
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
+    private String role;
 
     // Getters and Setters
     public Long getId() {
@@ -56,29 +42,11 @@ public class User {
         this.password = password;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public String getRole() {
+        return role;
     }
 
-    public void setRoles(Set<Role> roles) { // Add this method
-        this.roles = roles;
-    }
-
-    public UserProfile getUserProfile() {
-        return userProfile;
-    }
-
-    public void setUserProfile(UserProfile userProfile) {
-        this.userProfile = userProfile;
-    }
-
-    // Optionally override toString() for better representation
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", roles=" + roles +
-                '}';
+    public void setRole(String role) {
+        this.role = role;
     }
 }
